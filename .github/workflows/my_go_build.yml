@@ -1,4 +1,4 @@
-name: goreleaser
+name: My Go Builder
 
 on:
   pull_request:
@@ -21,16 +21,18 @@ jobs:
         uses: actions/setup-go@v4
         with: 
           go-version-file: go.mod
-      -
-        name: Run
-        run: |
-          go run main.go
+      #-
+      #  name: Run
+      #  run: |
+      #    go run main.go
       -
         name: Build go
         run: |
           go build -o hello
-      -
-        name: Run hello
-        shell: cmd
-        run: |
-          hello.exe
+      - 
+        name: Save exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: store-types  
+          path: |
+              ./hello.exe
