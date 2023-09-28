@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  go-builder:
     runs-on: windows-latest
     steps:
       -
@@ -26,9 +26,10 @@ jobs:
       #  run: |
       #    go run main.go
       -
-        name: Build go
+        name: Build and run hello.exe
         run: |
           go build -o hello.exe
+          ./hello.exe
 
       - 
         name: Save exe
