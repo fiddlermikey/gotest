@@ -29,4 +29,8 @@ jobs:
         name: Build go
         run: |
           go build -o hello
+      -
+        name: Run hello
+        shell: cmd
+        run: |
           hello.exe
