@@ -28,7 +28,8 @@ jobs:
       -
         name: Build go
         run: |
-          go build -o hello
+          go build -o hello.exe
+
       - 
         name: Save exe
         uses: actions/upload-artifact@v3
