@@ -27,7 +27,7 @@ checksum:
 release:
   prerelease: auto
   # If you want to manually examine the release before its live, uncomment this line:
-  draft: true
+  draft: {{ .Env.DRAFT }}
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
