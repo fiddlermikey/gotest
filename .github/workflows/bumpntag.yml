@@ -13,4 +13,3 @@ jobs:
           github_token: ${{ secrets.SDK_SYNC_PAT }}
           dry_run: true
           commit_sha: true
-          default_bump: patch
