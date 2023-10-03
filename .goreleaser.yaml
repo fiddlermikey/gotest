@@ -25,9 +25,9 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 release:
-  prerelease: auto
+  prerelease: {{ .Env.PRE }}
   # If you want to manually examine the release before its live, uncomment this line:
-  draft: true
+  draft: false
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
