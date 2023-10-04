@@ -32,7 +32,11 @@ jobs:
       - name: Show Vars from other job
         run: |
           echo "new_version : ${{ needs.bump-and-tag.outputs.new_version  }}"
-          echo "package version" | tee -a version.go
+          echo "package version" | tee version.go
+          echo "" | tee -a version.go
           echo "const VERSION = \"v${{ needs.bump-and-tag.outputs.new_version  }}\"" | tee -a version.go
           cat version.go
-
+#
+# Next steps. Do a checkout of the project first
+# update the version.go in the release branch
+# 
