@@ -30,6 +30,8 @@ jobs:
       - name: Show Bump and Tag Vars
         run: |
           echo "new_version : ${{ steps.tag_version.outputs.new_version  }}"
+          echo "new_tag : ${{ steps.tag_version.outputs.new_tag  }}"
+          echo "GITHUB_REF_NAME: ${{GITHUB_REF_NAME}}"
           env
   show-vars:
     runs-on: ubuntu-latest
