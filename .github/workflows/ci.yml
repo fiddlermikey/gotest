@@ -7,6 +7,8 @@ on:
 jobs:
   bump-and-tag:
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.tag_version.outputs.new_version  }}
     name: Bump version and create tag
     steps:
       - name: Bump version and push tag
@@ -25,7 +27,8 @@ jobs:
           env
   show-vars:
     runs-on: ubuntu-latest
+    needs: bump-and-tag
     steps:
-      - name: Show Vars
+      - name: Show Vars from other job
         run: |
-          env
+          echo "new_version : ${{ needs.bump-and-tag.outputs.new_version  }}"
