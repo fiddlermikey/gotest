@@ -23,15 +23,23 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const PR_STATE = github.context.payload.pull_request.state;
-            const BASE_REF = github.context.payload.pull_request.base.ref;
-            return {
-              'pr-state': PR_STATE,
-              'base-ref': BASE_REF,
-            };
+            if (github.context.eventName === 'pull_request') {
+              const PR_STATE = github.context.payload.pull_request.state;
+              const BASE_REF = github.context.payload.pull_request.base.ref;
+              return {
+                'pr-state': PR_STATE,
+                'base-ref': BASE_REF,
+              };
+            } else {
+              // Handle cases with no pull request
+              return {
+                'pr-state': 'closed',  // Set a default state for non-PR events
+                'base-ref': github.context.ref,
+              };
+            }
 
       - name: Determine latest release tag
-        id: latest-release
+        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
         uses: actions/github-script@v5
         with:
           script: |
@@ -69,17 +77,18 @@ jobs:
               // Remove .rc* to create the final release tag
               return { 'new-tag': latestRcTag.name.replace(/\.rc.*/, '') };
             }
-
+          }
 
       - name: Modify version.go file (Replace with actual command)
+        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
         run: |
           # Modify version.go file to update the version
-          sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
+          # Example: sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
           echo "Version updated to ${{ steps.latest-release.outputs.new-tag }}"
         shell: bash
 
       - name: Create and push new release tag
-        if: success()  # Only run when previous steps are successful
+        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
         run: |
           git tag ${{ steps.latest-release.outputs.new-tag }}
           git push origin ${{ steps.latest-release.outputs.new-tag }}
