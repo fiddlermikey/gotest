@@ -42,30 +42,30 @@ jobs:
               repo: github.context.repo.repo,
               per_page: 100,
             });
-            const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
-            if (latestTag) {
-              // Increment rc.n or create rc.0 if not found
-              const latestVersion = latestTag.name;
-              const versionParts = latestVersion.split('.');
-              versionParts[2] = (parseInt(versionParts[2]) + 1).toString();
-              core.setOutput('new-tag', versionParts.join('.'));
-            } else {
-              // No release tags found, create rc.0
-              core.setOutput('new-tag', baseRef + '.rc.0');
-            }
-          } else {
-            // PR is not open (merged or closed), get the latest rc.n value
-            const tags = github.repos.listTags({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              per_page: 100,
-            });
-            const latestRcTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.rc.'));
-            if (!latestRcTag) {
-              throw new Error(`No release candidate tags found for ${baseRef}`);
-            }
-            // Remove .rc* to create the final release tag
-            core.setOutput('new-tag', latestRcTag.name.replace(/\.rc.*/, ''));
+          //  const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
+          //  if (latestTag) {
+          //    // Increment rc.n or create rc.0 if not found
+          //    const latestVersion = latestTag.name;
+          //    const versionParts = latestVersion.split('.');
+          //    versionParts[2] = (parseInt(versionParts[2]) + 1).toString();
+          //    core.setOutput('new-tag', versionParts.join('.'));
+          //  } else {
+          //    // No release tags found, create rc.0
+          //    core.setOutput('new-tag', baseRef + '.rc.0');
+          //  }
+          //} else {
+          //  // PR is not open (merged or closed), get the latest rc.n value
+          //  const tags = github.repos.listTags({
+          //    owner: github.context.repo.owner,
+          //    repo: github.context.repo.repo,
+          //    per_page: 100,
+          //  });
+          //  const latestRcTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.rc.'));
+          //  if (!latestRcTag) {
+          //    throw new Error(`No release candidate tags found for ${baseRef}`);
+          //  }
+          //  // Remove .rc* to create the final release tag
+          //  core.setOutput('new-tag', latestRcTag.name.replace(/\.rc.*/, ''));
           }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
