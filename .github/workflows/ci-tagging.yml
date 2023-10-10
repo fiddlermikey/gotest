@@ -39,7 +39,7 @@ jobs:
             }
 
       - name: Determine latest release tag
-        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
+        if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
         uses: actions/github-script@v5
         with:
           script: |
@@ -77,10 +77,9 @@ jobs:
               // Remove .rc* to create the final release tag
               return { 'new-tag': latestRcTag.name.replace(/\.rc.*/, '') };
             }
-          }
 
       - name: Modify version.go file (Replace with actual command)
-        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
+        if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
         run: |
           # Modify version.go file to update the version
           # Example: sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
@@ -88,7 +87,7 @@ jobs:
         shell: bash
 
       - name: Create and push new release tag
-        if: ${{ steps.pr-info.outputs.pr-state != 'closed' }}
+        if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
         run: |
           git tag ${{ steps.latest-release.outputs.new-tag }}
           git push origin ${{ steps.latest-release.outputs.new-tag }}
