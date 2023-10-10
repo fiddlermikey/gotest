@@ -35,14 +35,14 @@ jobs:
         run: |
           const prState = core.getInput('pr-state');
           const baseRef = core.getInput('base-ref');
-          if (prState === 'open') {
-            // PR is open, find the latest release tag
-            const tags = github.repos.listTags({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              per_page: 100,
-            });
-          //  const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
+          //if (prState === 'open') {
+          //  // PR is open, find the latest release tag
+          //  const tags = github.repos.listTags({
+          //    owner: github.context.repo.owner,
+          //    repo: github.context.repo.repo,
+          //    per_page: 100,
+          //  });
+          ////  const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
           //  if (latestTag) {
           //    // Increment rc.n or create rc.0 if not found
           //    const latestVersion = latestTag.name;
