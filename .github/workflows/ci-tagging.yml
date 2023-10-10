@@ -1,0 +1,87 @@
+name: Release Workflow
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    branches:
+      - release-[0-9]*.[0-9]*  # Replace with your release branch pattern
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Determine PR state and base branch
+        id: pr-info
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const PR_STATE = github.context.payload.pull_request.state;
+            const BASE_REF = github.context.payload.pull_request.base.ref;
+            return {
+              'pr-state': PR_STATE,
+              'base-ref': BASE_REF,
+            };
+
+      - name: Determine latest release tag
+        id: latest-release
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const prState = context.outputs['pr-state'];
+            const baseRef = context.outputs['base-ref'];
+            if (prState === 'open') {
+              // PR is open, find the latest release tag
+              const tags = github.repos.listTags({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+              });
+              const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
+              if (latestTag) {
+                // Increment rc.n or create rc.0 if not found
+                const latestVersion = latestTag.name;
+                const versionParts = latestVersion.split('.');
+                versionParts[2] = (parseInt(versionParts[2]) + 1).toString();
+                return { 'new-tag': versionParts.join('.') };
+              } else {
+                // No release tags found, create rc.0
+                return { 'new-tag': baseRef + '.rc.0' };
+              }
+            } else {
+              // PR is not open (merged or closed), get the latest rc.n value
+              const tags = github.repos.listTags({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+              });
+              const latestRcTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.rc.'));
+              if (!latestRcTag) {
+                throw new Error(`No release candidate tags found for ${baseRef}`);
+              }
+              // Remove .rc* to create the final release tag
+              return { 'new-tag': latestRcTag.name.replace(/\.rc.*/, '') };
+            }
+
+
+      - name: Modify version.go file (Replace with actual command)
+        run: |
+          # Modify version.go file to update the version
+          sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
+          echo "Version updated to ${{ steps.latest-release.outputs.new-tag }}"
+        shell: bash
+
+      - name: Create and push new release tag
+        if: success()  # Only run when previous steps are successful
+        run: |
+          git tag ${{ steps.latest-release.outputs.new-tag }}
+          git push origin ${{ steps.latest-release.outputs.new-tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
