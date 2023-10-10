@@ -33,8 +33,8 @@ jobs:
         if: steps.pr-info.outputs.pr-state != 'closed'
         id: latest-release
         run: |
-          const prState = core.getInput('pr-state');
-          const baseRef = core.getInput('base-ref');
+          const prState = ${{steps.pr-info.outputs.pr-state}};
+          const baseRef = ${{steps.pr-info.outputs.base-ref}};
           //if (prState === 'open') {
           //  // PR is open, find the latest release tag
           //  const tags = github.repos.listTags({
