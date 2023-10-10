@@ -20,23 +20,16 @@ jobs:
 
       - name: Determine PR state and base branch
         id: pr-info
+        if: github.event_name == 'pull_request'  # Ensure this runs only for pull request events
         uses: actions/github-script@v5
         with:
           script: |
-            if (github.context.eventName === 'pull_request') {
-              const PR_STATE = github.context.payload.pull_request.state;
-              const BASE_REF = github.context.payload.pull_request.base.ref;
-              return {
-                'pr-state': PR_STATE,
-                'base-ref': BASE_REF,
-              };
-            } else {
-              // Handle cases with no pull request
-              return {
-                'pr-state': 'closed',  // Set a default state for non-PR events
-                'base-ref': github.context.ref,
-              };
-            }
+            const PR_STATE = github.context.payload.pull_request.state;
+            const BASE_REF = github.context.payload.pull_request.base.ref;
+            return {
+              'pr-state': PR_STATE,
+              'base-ref': BASE_REF,
+            };
 
       - name: Determine latest release tag
         if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
