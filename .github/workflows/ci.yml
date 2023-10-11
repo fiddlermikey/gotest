@@ -2,7 +2,7 @@ name: My Go Builder
 
 on:
   workflow_dispatch:
-  push:
+#  push:
 
 jobs:
   bump-and-tag:
@@ -39,4 +39,4 @@ jobs:
 #
 # Next steps. Do a checkout of the project first
 # update the version.go in the release branch
-# 
+# Then run the bump-and-tag action on the release branch
