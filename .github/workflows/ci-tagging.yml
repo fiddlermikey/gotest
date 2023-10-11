@@ -36,48 +36,49 @@ jobs:
         run: |
           const prState = ${{steps.pr-info.outputs.pr-state}};
           const baseRef = ${{steps.pr-info.outputs.base-ref}};
-          //if (prState === 'open') {
-          //  // PR is open, find the latest release tag
-          //  const tags = github.repos.listTags({
-          //    owner: github.context.repo.owner,
-          //    repo: github.context.repo.repo,
-          //    per_page: 100,
-          //  });
-          ////  const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
-          //  if (latestTag) {
-          //    // Increment rc.n or create rc.0 if not found
-          //    const latestVersion = latestTag.name;
-          //    const versionParts = latestVersion.split('.');
-          //    versionParts[2] = (parseInt(versionParts[2]) + 1).toString();
-          //    core.setOutput('new-tag', versionParts.join('.'));
-          //  } else {
-          //    // No release tags found, create rc.0
-          //    core.setOutput('new-tag', baseRef + '.rc.0');
-          //  }
-          //} else {
-          //  // PR is not open (merged or closed), get the latest rc.n value
-          //  const tags = github.repos.listTags({
-          //    owner: github.context.repo.owner,
-          //    repo: github.context.repo.repo,
-          //    per_page: 100,
-          //  });
-          //  const latestRcTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.rc.'));
-          //  if (!latestRcTag) {
-          //    throw new Error(`No release candidate tags found for ${baseRef}`);
-          //  }
-          //  // Remove .rc* to create the final release tag
-          //  core.setOutput('new-tag', latestRcTag.name.replace(/\.rc.*/, ''));
+            // PR is open, find the latest release tag
+            const tags = github.repos.listTags({
+              owner: github.context.repo.owner,
+              repo: github.context.repo.repo,
+              per_page: 100,
+            });
+            const latestTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.'));
+            if (latestTag) {
+              // Increment rc.n or create rc.0 if not found
+              const latestVersion = latestTag.name;
+              const versionParts = latestVersion.split('.');
+              versionParts[2] = (parseInt(versionParts[2]) + 1).toString();
+              console.log(`latestVersion: ${latestVersion}, versionParts: ${versionParts}`)
+              core.setOutput('new-tag', versionParts.join('.'));
+            } else {
+              console.log('No release tags found, create rc.0')
+              core.setOutput('new-tag', baseRef + '.rc.0');
+            }
+          } else {
+            // PR is not open (merged or closed), get the latest rc.n value
+            const tags = github.repos.listTags({
+              owner: github.context.repo.owner,
+              repo: github.context.repo.repo,
+          if (prState === 'open') {
+              per_page: 100,
+            });
+            const latestRcTag = tags.data.find(tag => tag.name.startsWith(baseRef + '.rc.'));
+            if (!latestRcTag) {
+              throw new Error(`No release candidate tags found for ${baseRef}`);
+            }
+            // Remove .rc* to create the final release tag
+            core.setOutput('new-tag', latestRcTag.name.replace(/\.rc.*/, ''));
           }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Modify version.go file (Replace with actual command)
-        if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
-        run: |
-          # Modify version.go file to update the version
-          sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
-          echo "Version updated to ${{ steps.latest-release.outputs.new-tag }}"
-        shell: bash
+      #- name: Modify version.go file (Replace with actual command)
+      #  if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
+      #  run: |
+      #    # Modify version.go file to update the version
+      #    sed -i 's/const Version = ".*"/const Version = "${{ steps.latest-release.outputs.new-tag }}"/' version.go
+      #    echo "Version updated to ${{ steps.latest-release.outputs.new-tag }}"
+      #  shell: bash
 
       - name: Create and push new release tag
         if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
