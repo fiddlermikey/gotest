@@ -24,9 +24,9 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const PR_EXISTS = github.context.payload.pull_request.state;
+            const PR_EXISTS = ${{ github.context.payload.pull_request.state }};
             PR_EXISTS == '' ? const PR_STATE = 'empty' : const PR_STATE = PR_EXISTS
-            const BASE_REF = github.context.payload.pull_request.base.ref;
+            const BASE_REF = ${{github.context.payload.pull_request.base.ref}};
             core.setOutput('pr-state', PR_STATE);
             core.setOutput('base-ref', BASE_REF);
 
