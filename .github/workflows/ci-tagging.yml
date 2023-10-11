@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Determine PR state and base branch
         id: pr-info
         if: github.event_name == 'pull_request'  # Ensure this runs only for pull request events
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             const PR_EXISTS = ${{ github.context.payload.pull_request.state }};
@@ -29,6 +29,8 @@ jobs:
             const BASE_REF = ${{github.context.payload.pull_request.base.ref}};
             core.setOutput('pr-state', PR_STATE);
             core.setOutput('base-ref', BASE_REF);
+            console.log(`pr-state: ${PR_STATE}`)
+            console.log(`base-ref: ${BASE_REF}`)
 
       - name: Determine latest release tag
         if: steps.pr-info.outputs.pr-state == 'open' || steps.pr-info.outputs.pr-state == 'merged'
