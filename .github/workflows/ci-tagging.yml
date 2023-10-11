@@ -80,6 +80,12 @@ jobs:
       #    echo "Version updated to ${{ steps.latest-release.outputs.new-tag }}"
       #  shell: bash
 
+      - name: Read variables
+        if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
+        run: |
+          echo "new-tag &colon; ${{ steps.latest-release.outputs.new-tag }}"
+          echo "base-ref &colon; ${{steps.pr-info.outputs.base-ref}}"
+
       - name: Create and push new release tag
         if: ${{ needs.pr-info.outputs['pr-state'] != 'closed' }}
         run: |
