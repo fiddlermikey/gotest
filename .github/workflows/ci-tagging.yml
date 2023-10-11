@@ -31,7 +31,7 @@ jobs:
             core.setOutput('base-ref', BASE_REF);
 
       - name: Determine latest release tag
-        if: steps.pr-info.outputs.pr-state == 'open' | 'merged'
+        if: steps.pr-info.outputs.pr-state == 'open' || steps.pr-info.outputs.pr-state == 'merged'
         id: latest-release
         run: |
           const prState = ${{steps.pr-info.outputs.pr-state}};
