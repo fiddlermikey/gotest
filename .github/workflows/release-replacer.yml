@@ -40,7 +40,7 @@ jobs:
 
       - name: Display PR_BASE_REF
         id: display-pr-base-ref
-        if: ${{ steps.display-from-pr.outputs.id }}
+        if: ${{ steps.display-from-pr.outputs.PR_BASE_REF }}
         run: |
           PR_BASE_REF="${{ steps.display-from-pr.outputs.PR_BASE_REF }}"
           echo "The PR base ref is $PR_BASE_REF"
