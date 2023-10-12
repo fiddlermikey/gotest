@@ -37,3 +37,11 @@ jobs:
           echo "Branch Ref: ${{ github.ref }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "github.sha: ${{ github.sha }}" | tee -a $GITHUB_STEP_SUMMARY
+
+      - name: Display PR_BASE_REF
+        id: display-pr-base-ref
+        if: ${{ steps.display-from-pr.outputs.id }}
+        run: |
+          PR_BASE_REF="${{ steps.display-from-pr.outputs.PR_BASE_REF }}"
+          echo "The PR base ref is $PR_BASE_REF"
+          
