@@ -61,7 +61,7 @@ jobs:
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
           
       - name: Create Release Build
-        if: ${{ github.event_name == 'pull_request' }} && ${{ env.PR_STATE == 'closed' }} && ${{ env.PR_MERGED == 'true' }} && ${{ env.PR_COMMIT_SHA == env.GITHUB_SHA}}
+        if: github.event_name == 'pull_request' && env.PR_STATE == 'closed' && env.PR_MERGED == 'true' && env.PR_COMMIT_SHA == env.GITHUB_SHA
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
