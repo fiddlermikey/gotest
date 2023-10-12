@@ -1,0 +1,36 @@
+name: My Workflow
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+  push:
+    # branches:
+    #  - 'release-[0-9]*.[0-9]*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Display base.ref from Pull Request
+        if: ${{ github.event_name == 'pull_request'}}
+        id: display-from-pr
+        run: |
+          echo "Base Ref: ${{ github.event.pull_request.base.ref }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Event Action: ${{ github.event.action }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "State: ${{ github.event.pull_request.state }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR Merged: ${{ github.event.pull_request.merged }}" | tee -a $GITHUB_STEP_SUMMARY
+
+      - name: Display base_ref from Push Event
+        if: ${{ github.event_name == 'push' }}
+        id: display-from-push
+        run: |
+          echo "Branch Ref: ${{ github.ref }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
