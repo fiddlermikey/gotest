@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Display base.ref from Pull Request
-        if: ${{ github.event_name == 'pull_request'}}
+        if: github.event_name == 'pull_request'
         id: display-from-pr
         run: |
           echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
@@ -31,7 +31,7 @@ jobs:
           echo "GITHUB_SHA=${{ github.sha }}" | tee -a "$GITHUB_ENV" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Display base_ref from Push Event
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'push'
         id: display-from-push
         run: |
           echo "Branch Ref: ${{ github.ref }}" | tee -a $GITHUB_STEP_SUMMARY
@@ -39,7 +39,7 @@ jobs:
           echo "github.sha: ${{ github.sha }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Display PR_BASE_REF
-        if: ${{ github.event_name == 'pull_request' }}
+        if: github.event_name == 'pull_request'
         id: display-pr-base-ref
         run: |
           echo "PR_BASE_REF=${{ env.PR_BASE_REF }}"
@@ -49,13 +49,13 @@ jobs:
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }}"
           
       - name: Just Run Build on Push
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'push'
         id: push-build
         run: |
           echo "Just run a build on sha ${{ github.sha }} with no delivery/release artifacts"
           
       - name: Create Prerelease Candidate Build
-        if: ${{ github.event_name == 'pull_request' }} && ${{ env.PR_STATE == 'open' }}
+        if: github.event_name == 'pull_request' && env.PR_STATE == 'open'
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
