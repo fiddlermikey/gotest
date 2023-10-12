@@ -27,6 +27,8 @@ jobs:
           echo "Event Action: ${{ github.event.action }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "State: ${{ github.event.pull_request.state }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "PR Merged: ${{ github.event.pull_request.merged }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR Commit sha: ${{ github.event.pull_request.merge_commit_sha }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "github.sha: ${{ github.sha }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Display base_ref from Push Event
         if: ${{ github.event_name == 'push' }}
@@ -34,3 +36,4 @@ jobs:
         run: |
           echo "Branch Ref: ${{ github.ref }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "github.sha: ${{ github.sha }}" | tee -a $GITHUB_STEP_SUMMARY
