@@ -22,7 +22,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request'}}
         id: display-from-pr
         run: |
-          echo "Base Ref: ${{ github.event.pull_request.base.ref }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR_BASE_REF = ${{ github.event.pull_request.base.ref }}" | tee -a $GITHUB_STEP_SUMMARY | tee -a "$GITHUB_OUTPUT"
           echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "Event Action: ${{ github.event.action }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "State: ${{ github.event.pull_request.state }}" | tee -a $GITHUB_STEP_SUMMARY
