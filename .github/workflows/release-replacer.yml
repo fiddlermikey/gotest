@@ -43,5 +43,4 @@ jobs:
         id: display-pr-base-ref
         run: |
           echo "PR_BASE_REF=${{ env.PR_BASE_REF }}"
-          env
           
