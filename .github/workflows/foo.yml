@@ -27,7 +27,7 @@ jobs:
 
       - name: Display PR_BASE_REF
         id: display-pr-base-ref
-        if: ${{ steps.display-from-pr.outputs.P_B_R }}
+        if: ${{ steps.display-from-pr.outputs.P_B_RR }}
         run: |
           echo "PR_BASE_REF=${{ env.PR_BASE_REF }}"
           echo "P_B_R=${{ steps.display-from-pr.outputs.P_B_R }}"
