@@ -1,3 +1,9 @@
 # gotest
 
-### Get a release uploaded
+### Build Workflow Triggers
+
+* Push
+** Any Branch
+
+* Pull Request
+
