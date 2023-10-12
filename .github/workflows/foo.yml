@@ -1,0 +1,31 @@
+name: My Tester Workflow
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+  push:
+    # branches:
+    #  - 'release-[0-9]*.[0-9]*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Display base.ref from Pull Request
+        if: ${{ github.event_name == 'pull_request'}}
+        id: display-from-pr
+        run: |
+          echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" >> "$GITHUB_ENV"
+
+      - name: Display PR_BASE_REF
+        id: display-pr-base-ref
+        run: |
+          env
+          
