@@ -23,7 +23,7 @@ jobs:
         id: display-from-pr
         run: |
           echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_ENV" | tee -a "$GITHUB_STEP_SUMMARY"
-          echo "P_B_R=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_OUTPUT"
+          echo "P_B_R=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Display PR_BASE_REF
         id: display-pr-base-ref
