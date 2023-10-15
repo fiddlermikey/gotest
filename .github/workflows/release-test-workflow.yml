@@ -78,29 +78,6 @@ jobs:
       - name: Create new release
         id: create_release
 #        uses: keyfactor/action-create-release@upd-deprecated
-        uses: zendesk/action-create-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MANUAL_VERSION: ${{ env.MANUAL_VERSION }}
-        # if: env.IS_PRE_RELEASE == 'True' || env.IS_RELEASE == 'true'
-        if: github.event_name == 'pull_request'
-        with:
-          release_name: v${{ env.PR_BASE_TAG }}
-          body: |
-            [Changelog](/./CHANGELOG.md) 
-            [Readme](/./README.md) 
-            For the latest README.md updates visit the [Main Page](/../main) for this repository
-          draft: false
-          prerelease: ${{ env.IS_PRE_RELEASE == 'True' }}
-          prerelease_suffix: rc
-          tag_name: ${{ env.PR_BASE_TAG }}
-          auto_increment_type: ${{ (env.IS_PRE_RELEASE == 'True') && 'prerelease' || 'patch' }}
-          tag_schema: semantic
-          
-
-      - name: Create new release
-        id: create_release
-#        uses: keyfactor/action-create-release@upd-deprecated
         uses: fiddlermikey/action-create-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
