@@ -78,7 +78,7 @@ jobs:
       - name: Create new release
         id: create_release
 #        uses: keyfactor/action-create-release@upd-deprecated
-        uses: zendesk/action-create-release@v3
+        uses: zendesk/action-create-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MANUAL_VERSION: ${{ env.MANUAL_VERSION }}
