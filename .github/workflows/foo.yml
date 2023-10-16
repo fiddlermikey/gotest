@@ -32,4 +32,5 @@ jobs:
       - name: Display tag
         id: full-release-build
         run: |
-          echo "${{ needs.get-versions.outputs.PR_BASE_TAG}}"
+          echo "needs: ${{ needs.get-versions.outputs.PR_BASE_REF}}"
+          echo "env: ${{ env.PR_BASE_REF }}"
