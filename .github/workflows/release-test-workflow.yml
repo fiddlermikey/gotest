@@ -58,7 +58,7 @@ jobs:
           if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
             echo "FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
           fi
-          if [[ "${{ env.PR_STATE }}" == "open"; then
+          if [[ "${{ env.PR_STATE }}" == "open" ]]; then
             echo "PRE_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
           fi
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
