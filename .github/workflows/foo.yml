@@ -23,7 +23,7 @@ jobs:
         if: github.event_name == 'pull_request'
         id: set-outputs
         run: |
-          echo "PR_BASE_REF=${{ env.PR_BASE_REF }} >> $GITHUB_OUTPUT"
+          echo "::set-output name=PR_BASE_REF::${{ env.PR_BASE_REF }}"
           
   build-selector:
     needs: get-versions
