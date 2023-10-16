@@ -83,13 +83,13 @@ jobs:
 # Finding base tag name above as ${{ env.PR_BASE_TAG }}
 
       - name: Create Prerelease Candidate Build
-        if: needs.get-versions.outputs.PRE_RELEASE
+        if: needs.get-versions.outputs.PRE_RELEASE == 'True'
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
           
       - name: Create Release Build
-        if: needs.get-versions.outputs.FULL_RELEASE
+        if: needs.get-versions.outputs.FULL_RELEASE == 'True'
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
