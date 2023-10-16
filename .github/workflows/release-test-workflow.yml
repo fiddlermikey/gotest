@@ -64,6 +64,7 @@ jobs:
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }} | tee -a $GITHUB_OUTPUT"
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }} | tee -a $GITHUB_OUTPUT"
           echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }} | tee -a $GITHUB_OUTPUT"
+          cat  $GITHUB_OUTPUT
 
           
   build-selector:
@@ -81,8 +82,7 @@ jobs:
       - name: Display selector type
         id: get-build-type
         run: |
-          echo "needs.get-versions.outputs.FULL_RELEASE: ${{needs.get-versions.outputs.PRE_RELEASE}}"
-          echo "needs.get-versions.outputs.PRE_RELEASE: ${{needs.get-versions.outputs.FULL_RELEASE}}"
+           cat $GITHUB_OUTPUT
 # Before calling this a release or prerelease build DO WE still need to check the state of pulls that match the ${{ env.PR_BASE_REF }}?
 # We need to find the latest tag that matches the ${{ env.PR_BASE_REF }}
 # To do this, we need to strip the 'release-' from the ref and find the latest repo.tag
