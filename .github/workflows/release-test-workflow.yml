@@ -52,19 +52,18 @@ jobs:
         if: github.event_name == 'pull_request'
         id: set-outputs
         run: |
-          echo "PR_BASE_REF=${{ env.PR_BASE_REF }} | tee -a $GITHUB_OUTPUT"
+          echo "PR_BASE_REF=${{ env.PR_BASE_REF }}" | tee -a "$GITHUB_OUTPUT"
           echo "PR_STATE=${{ env.PR_STATE }}"
           echo "PR_MERGED=${{ env.PR_MERGED }}"
           if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
-            echo "FULL_RELEASE=True" | tee -a $GITHUB_OUTPUT"
+            echo "FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
           fi
           if [[ "${{ env.PR_STATE }}" == "open"; then
-            echo "PRE_RELEASE=True" | tee -a $GITHUB_OUTPUT"
+            echo "PRE_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
           fi
-          echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }} | tee -a $GITHUB_OUTPUT"
-          echo "GITHUB_SHA=${{ env.GITHUB_SHA }} | tee -a $GITHUB_OUTPUT"
-          echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }} | tee -a $GITHUB_OUTPUT"
-          cat  $GITHUB_OUTPUT
+          echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
+          echo "GITHUB_SHA=${{ env.GITHUB_SHA }}" | tee -a "$GITHUB_OUTPUT"
+          echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }}" | tee -a "$GITHUB_OUTPUT"
 
           
   build-selector:
@@ -78,11 +77,6 @@ jobs:
         run: |
           echo "Just run a build on sha ${{ github.sha }} with no delivery/release artifacts"
 
-# TODO: Remove this step
-      - name: Display selector type
-        id: get-build-type
-        run: |
-           cat $GITHUB_OUTPUT
 # Before calling this a release or prerelease build DO WE still need to check the state of pulls that match the ${{ env.PR_BASE_REF }}?
 # We need to find the latest tag that matches the ${{ env.PR_BASE_REF }}
 # To do this, we need to strip the 'release-' from the ref and find the latest repo.tag
