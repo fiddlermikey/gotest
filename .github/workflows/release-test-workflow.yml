@@ -80,7 +80,7 @@ jobs:
 #        uses: keyfactor/action-create-release@upd-deprecated
         uses: fiddlermikey/action-create-release@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
           MANUAL_VERSION: ${{ env.MANUAL_VERSION }}
         # if: env.IS_PRE_RELEASE == 'True' || env.IS_RELEASE == 'true'
         if: github.event_name == 'pull_request'
