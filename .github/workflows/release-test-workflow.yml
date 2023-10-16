@@ -77,6 +77,12 @@ jobs:
         run: |
           echo "Just run a build on sha ${{ github.sha }} with no delivery/release artifacts"
 
+# TODO: Remove this step
+      - name: Display selector type
+        id: get-build-type
+        run: |
+          echo "needs.get-versions.outputs.FULL_RELEASE: ${{needs.get-versions.outputs.PRE_RELEASE}}"
+          echo "needs.get-versions.outputs.PRE_RELEASE: ${{needs.get-versions.outputs.FULL_RELEASE}}"
 # Before calling this a release or prerelease build DO WE still need to check the state of pulls that match the ${{ env.PR_BASE_REF }}?
 # We need to find the latest tag that matches the ${{ env.PR_BASE_REF }}
 # To do this, we need to strip the 'release-' from the ref and find the latest repo.tag
