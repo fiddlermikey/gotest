@@ -1,34 +1,35 @@
-name: My Tester Workflow
+name: Foo Replacer Workflow
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - closed
-  push:
-    # branches:
-    #  - 'release-[0-9]*.[0-9]*'
 
 jobs:
-  build:
+  get-versions:
     runs-on: ubuntu-latest
+    outputs:
+      PR_BASE_REF: ${{ steps.set-outputs.outputs.PR_BASE_REF }}
 
     steps:
       - name: Check out the code
         uses: actions/checkout@v3
 
       - name: Display base.ref from Pull Request
-        if: ${{ github.event_name == 'pull_request'}}
+        if: github.event_name == 'pull_request'
         id: display-from-pr
         run: |
-          echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_ENV" | tee -a "$GITHUB_STEP_SUMMARY"
-          echo "P_B_R=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" | tee -a "$GITHUB_ENV" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Display PR_BASE_REF
-        id: display-pr-base-ref
-        if: ${{ steps.display-from-pr.outputs.P_B_R }}
+        if: github.event_name == 'pull_request'
+        id: set-outputs
         run: |
-          echo "PR_BASE_REF=${{ env.PR_BASE_REF }}"
-          echo "P_B_R=${{ steps.display-from-pr.outputs.P_B_R }}"
+          echo "PR_BASE_REF=${{ env.PR_BASE_REF }} | tee -a $GITHUB_OUTPUT"
           
+  build-selector:
+    needs: get-versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display tag
+        id: full-release-build
+        run: |
+          echo "${{ needs.get-versions.outputs.PR_BASE_TAG}}"
