@@ -13,6 +13,13 @@ on:
 jobs:
   get-versions:
     runs-on: ubuntu-latest
+    outputs:
+      PR_BASE_REF: ${{ steps.set-outputs.outputs.PR_BASE_REF }}
+      PR_COMMIT_SHA: ${{ steps.set-outputs.outputs.PR_COMMIT_SHA }}
+      GITHUB_SHA: ${{ steps.set-outputs.outputs.GITHUB_SHA }}
+      PR_BASE_TAG: ${{ steps.set-outputs.outputs.PR_BASE_TAG }}
+      FULL_RELEASE:  ${{ steps.set-outputs.outputs.FULL_RELEASE }}
+      PRE_RELEASE:  ${{ steps.set-outputs.outputs.PRE_RELEASE }}
 
     steps:
       - name: Check out the code
@@ -43,14 +50,21 @@ jobs:
 
       - name: Display PR_BASE_REF
         if: github.event_name == 'pull_request'
-        id: display-pr-base-ref
+        id: set-outputs
         run: |
-          echo "PR_BASE_REF=${{ env.PR_BASE_REF }}"
+          echo "PR_BASE_REF=${{ env.PR_BASE_REF }} | tee -a $GITHUB_OUTPUT"
           echo "PR_STATE=${{ env.PR_STATE }}"
           echo "PR_MERGED=${{ env.PR_MERGED }}"
-          echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}"
-          echo "GITHUB_SHA=${{ env.GITHUB_SHA }}"
-          echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }}"
+          if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && ("${{ env.PR_COMMIT_SHA }}" == ${{ env.GITHUB_SHA }}") ]]; then
+            echo "FULL_RELEASE=True" | tee -a $GITHUB_OUTPUT"
+          fi
+          if [[ "${{ env.PR_STATE }}" == "open"; then
+            echo "PRE_RELEASE=True" | tee -a $GITHUB_OUTPUT"
+          fi
+          echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }} | tee -a $GITHUB_OUTPUT"
+          echo "GITHUB_SHA=${{ env.GITHUB_SHA }} | tee -a $GITHUB_OUTPUT"
+          echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }} | tee -a $GITHUB_OUTPUT"
+
           
   build-selector:
     needs: get-versions
@@ -69,19 +83,19 @@ jobs:
 # Finding base tag name above as ${{ env.PR_BASE_TAG }}
 
       - name: Create Prerelease Candidate Build
-        if: github.event_name == 'pull_request' && env.PR_STATE == 'open'
+        if: needs.get-versions.outputs.PRE_RELEASE
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
           
       - name: Create Release Build
-        if: github.event_name == 'pull_request' && env.PR_STATE == 'closed' && env.PR_MERGED == 'true' && env.PR_COMMIT_SHA == env.GITHUB_SHA
+        if: needs.get-versions.outputs.FULL_RELEASE
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
 
   release-type:
-    needs: build-selector
+    needs: [get-versions, build-selector]
     runs-on: ubuntu-latest
     steps:
       - name: Create new release
@@ -94,7 +108,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           repo-token: ${{ secrets.SDK_SYNC_PAT }}
-          release_name: v${{ env.PR_BASE_TAG }}
+          release_name: v${{ needs.get-versions.outputs.PR_BASE_TAG}}
           body: |
             [Changelog](/./CHANGELOG.md) 
             [Readme](/./README.md) 
@@ -102,7 +116,7 @@ jobs:
           draft: false
           prerelease: ${{ env.IS_PRE_RELEASE == 'True' }}
           prerelease_suffix: rc
-          tag_name: ${{ env.PR_BASE_TAG }}
+          tag_name: ${{ needs.get-versions.outputs.PR_BASE_TAG}}
           auto_increment_type: ${{ (env.IS_PRE_RELEASE == 'True') && 'prerelease' || 'patch' }}
           tag_schema: semantic
           
