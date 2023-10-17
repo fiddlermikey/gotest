@@ -98,7 +98,7 @@ jobs:
         if: github.event_name == 'pull_request'
         id: set-inc-level
         run: |
-          if [[ "${{ needs.get-versions.outputs.IS_PRE_RELEASE" }} == "True" ]]; then
+          if [[ "${{ needs.get-versions.outputs.IS_PRE_RELEASE" }}" == "True" ]]; then
             echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"; else
             echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
           fi
