@@ -18,8 +18,8 @@ jobs:
       PR_COMMIT_SHA: ${{ steps.set-outputs.outputs.PR_COMMIT_SHA }}
       GITHUB_SHA: ${{ steps.set-outputs.outputs.GITHUB_SHA }}
       PR_BASE_TAG: ${{ steps.set-outputs.outputs.PR_BASE_TAG }}
-      FULL_RELEASE:  ${{ steps.set-outputs.outputs.FULL_RELEASE }}
-      PRE_RELEASE:  ${{ steps.set-outputs.outputs.PRE_RELEASE }}
+      IS_FULL_RELEASE:  ${{ steps.set-outputs.outputs.IS_FULL_RELEASE }}
+      IS_PRE_RELEASE:  ${{ steps.set-outputs.outputs.IS_PRE_RELEASE }}
 
     steps:
       - name: Check out the code
@@ -56,10 +56,10 @@ jobs:
           echo "PR_STATE=${{ env.PR_STATE }}"
           echo "PR_MERGED=${{ env.PR_MERGED }}"
           if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
-            echo "FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
+            echo "IS_FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
           fi
           if [[ "${{ env.PR_STATE }}" == "open" ]]; then
-            echo "PRE_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
+            echo "IS_PRE_RELEASE=True" | tee -a "$GITHUB_OUTPUT" | tee -a "$GITHUB_ENV"
           fi
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }}" | tee -a "$GITHUB_OUTPUT"
@@ -83,13 +83,13 @@ jobs:
 # Finding base tag name above as ${{ env.PR_BASE_TAG }}
 
       - name: Create Prerelease Candidate Build
-        if: needs.get-versions.outputs.PRE_RELEASE == 'True'
+        if: needs.get-versions.outputs.IS_PRE_RELEASE == 'True'
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
           
       - name: Create Release Build
-        if: needs.get-versions.outputs.FULL_RELEASE == 'True'
+        if: needs.get-versions.outputs.IS_FULL_RELEASE == 'True'
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
