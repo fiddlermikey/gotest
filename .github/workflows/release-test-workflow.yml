@@ -97,12 +97,16 @@ jobs:
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
+          echo "PRE_ID=rc" | tee -a "$GITHUB_ENV"
+          echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_ENV"
           
       - name: Create Release Build
         if: needs.get-versions.outputs.IS_FULL_RELEASE == 'True'
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
+          echo "PRE_ID=" | tee -a "$GITHUB_ENV"
+          echo "INC_LEVEL=patch" | tee -a "$GITHUB_ENV"
 
   release-type:
     needs: [get-versions, build-selector]
@@ -112,8 +116,8 @@ jobs:
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
-          level: prerelease
-          preID: rc
+          level: ${{ env.PR_BASE_TAG }}
+          preID: ${{ env.PRE_ID }}
       - name: Set semver info
         id: show-next-semver
         run: |
