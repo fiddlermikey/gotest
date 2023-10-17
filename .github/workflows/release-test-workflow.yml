@@ -116,7 +116,7 @@ jobs:
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
-          level: ${{ env.PR_BASE_TAG }}
+          level: ${{ env.INC_LEVEL }}
           preID: ${{ env.PRE_ID }}
       - name: Set semver info
         id: show-next-semver
