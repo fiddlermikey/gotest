@@ -79,6 +79,8 @@ jobs:
   build-selector:
     needs: get-versions
     runs-on: ubuntu-latest
+    outputs:
+      INC_LEVEL: ${{ steps.set-inc-level.outputs.INC_LEVEL }}
 
     steps:
       - name: Just Run Build on Push
@@ -92,19 +94,27 @@ jobs:
 # To do this, we need to strip the 'release-' from the ref and find the latest repo.tag
 # Finding base tag name above as ${{ env.PR_BASE_TAG }}
 
+      - name: Set Increment Level
+        if: github.event_name == 'pull_request'
+        id: set-inc-level
+        run: |
+          if [[ "${{ needs.get-versions.outputs.IS_PRE_RELEASE" }} == "True" ]]; then
+            echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"; else
+            echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
+          fi
       - name: Create Prerelease Candidate Build
         if: needs.get-versions.outputs.IS_PRE_RELEASE == 'True'
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
-          echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_ENV"
+          echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"
           
       - name: Create Release Build
         if: needs.get-versions.outputs.IS_FULL_RELEASE == 'True'
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
-          echo "INC_LEVEL=patch" | tee -a "$GITHUB_ENV"
+          echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
 
   release-type:
     needs: [get-versions, build-selector]
