@@ -82,8 +82,6 @@ jobs:
   build-selector:
     needs: get-versions
     runs-on: ubuntu-latest
-    outputs:
-      INC_LEVEL: ${{ steps.set-inc-level.outputs.INC_LEVEL }}
 
     steps:
       - name: Just Run Build on Push
@@ -113,6 +111,8 @@ jobs:
     needs: [get-versions, build-selector]
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          echo "INC_LEVEL = ${{ needs.get-versions.outputs.INC_LEVEL}}"
       - uses: fiddlermikey/action-bump-semver@main
         id: set-semver-info
         with:
