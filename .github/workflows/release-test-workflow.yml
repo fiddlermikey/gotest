@@ -20,6 +20,7 @@ jobs:
       PR_BASE_TAG: ${{ steps.set-outputs.outputs.PR_BASE_TAG }}
       IS_FULL_RELEASE:  ${{ steps.set-outputs.outputs.IS_FULL_RELEASE }}
       IS_PRE_RELEASE:  ${{ steps.set-outputs.outputs.IS_PRE_RELEASE }}
+      INC_LEVEL: ${{ steps.set-outputs.outputs.INC_LEVEL }}
       IS_HOTFIX: ${{ steps.find-latest-tag.outputs.IS_HOTFIX }}
       LATEST_TAG: ${{ steps.find-latest-tag.outputs.LATEST_TAG }}
 
@@ -68,9 +69,11 @@ jobs:
           echo "PR_MERGED=${{ env.PR_MERGED }}"
           if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
             echo "IS_FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
+            echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
           fi
           if [[ "${{ env.PR_STATE }}" == "open" ]]; then
             echo "IS_PRE_RELEASE=True" | tee -a "$GITHUB_OUTPUT" | tee -a "$GITHUB_ENV"
+            echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"
           fi
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }}" | tee -a "$GITHUB_OUTPUT"
@@ -94,40 +97,27 @@ jobs:
 # To do this, we need to strip the 'release-' from the ref and find the latest repo.tag
 # Finding base tag name above as ${{ env.PR_BASE_TAG }}
 
-      - name: Set Increment Level
-        if: github.event_name == 'pull_request'
-        id: set-inc-level
-        run: |
-          if [[ "${{ needs.get-versions.outputs.IS_PRE_RELEASE" }}" == "True" ]]; then
-            echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"; else
-            echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
-          fi
       - name: Create Prerelease Candidate Build
         if: needs.get-versions.outputs.IS_PRE_RELEASE == 'True'
         id: prerelease-build
         run: |
           echo "Just run a prerelease build on sha ${{ github.sha }} with delivery/release artifacts to .rc"
-          echo "INC_LEVEL=prerelease" | tee -a "$GITHUB_OUTPUT"
           
       - name: Create Release Build
         if: needs.get-versions.outputs.IS_FULL_RELEASE == 'True'
         id: full-release-build
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
-          echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
 
   release-type:
     needs: [get-versions, build-selector]
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "INC_LEVEL=${{env.INC_LEVEL}}" | tee -a "$GITHUB_STEP_SUMMARY"
-
       - uses: fiddlermikey/action-bump-semver@main
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
-          level: patch
+          level: ${{ needs.get-versions.outputs.INC_LEVEL}}
           preID: rc
       - name: Set semver info
         id: show-next-semver
