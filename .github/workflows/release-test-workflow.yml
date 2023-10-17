@@ -20,6 +20,8 @@ jobs:
       PR_BASE_TAG: ${{ steps.set-outputs.outputs.PR_BASE_TAG }}
       IS_FULL_RELEASE:  ${{ steps.set-outputs.outputs.IS_FULL_RELEASE }}
       IS_PRE_RELEASE:  ${{ steps.set-outputs.outputs.IS_PRE_RELEASE }}
+      IS_HOTFIX: ${{ steps.find-latest-tag.outputs.IS_HOTFIX }}
+      LATEST_TAG: ${{ steps.find-latest-tag.outputs.LATEST_TAG }}
 
     steps:
       - name: Check out the code
@@ -48,6 +50,15 @@ jobs:
           echo "Event: ${{ github.event_name }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "github.sha: ${{ github.sha }}" | tee -a $GITHUB_STEP_SUMMARY
 
+      - name: Find Latest Tag
+        if: github.event_name == 'pull_request'
+        id: find-latest-tag
+        run: |
+          latestTag=`git fetch --tags && git tag --sort=-v:refname | head -n 1`
+          echo "LATEST_TAG=${latestTag}"  | tee -a "$GITHUB_OUTPUT"
+          hf=$( [ "$PR_BASE_TAG" = "latestTag" ] && echo "True" || echo "False" )
+          echo "IS_HOTFIX=$hf" | tee -a "$GITHUB_OUTPUT"
+
       - name: Display PR_BASE_REF
         if: github.event_name == 'pull_request'
         id: set-outputs
@@ -64,8 +75,22 @@ jobs:
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }}" | tee -a "$GITHUB_OUTPUT"
+#
+# Get the latest tags. If the PR_BASE_TAG < latestTag, echo "IS_HOTFIX=True" | tee -a "$GITHUB_OUTPUT" (Boolean)
+#    outputs:
+#      IS_HOTFIX: ${{ steps.tag-type.outputs.IS_HOTFIX }}
+# This is probably easiest done through github-script          
+# Basically, get all the tags and sort them and reverse the sort so that it appears at the top
+#  Then comp to PR_BASE_TAG
+# (PR_BASE_TAG == latestTag) ? hf=True : hf=False (node)
+# hf=$( [ "$PR_BASE_TAG" = "latestTag" ] && echo "True" || echo "False" ) (bash)
+# echo "IS_HOTFIX=$hf" | tee -a "$GITHUB_OUTPUT"
+#
+# Latest tag can be obtained using the bash command:
+# git fetch --tags && git tag --sort=-v:refname | head -n 1
+#
+#
 
-          
   build-selector:
     needs: get-versions
     runs-on: ubuntu-latest
