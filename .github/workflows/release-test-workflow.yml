@@ -75,21 +75,6 @@ jobs:
           echo "PR_COMMIT_SHA=${{ env.PR_COMMIT_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "GITHUB_SHA=${{ env.GITHUB_SHA }}" | tee -a "$GITHUB_OUTPUT"
           echo "PR_BASE_TAG=${{ env.PR_BASE_TAG }}" | tee -a "$GITHUB_OUTPUT"
-#
-# Get the latest tags. If the PR_BASE_TAG < latestTag, echo "IS_HOTFIX=True" | tee -a "$GITHUB_OUTPUT" (Boolean)
-#    outputs:
-#      IS_HOTFIX: ${{ steps.tag-type.outputs.IS_HOTFIX }}
-# This is probably easiest done through github-script          
-# Basically, get all the tags and sort them and reverse the sort so that it appears at the top
-#  Then comp to PR_BASE_TAG
-# (PR_BASE_TAG == latestTag) ? hf=True : hf=False (node)
-# hf=$( [ "$PR_BASE_TAG" = "latestTag" ] && echo "True" || echo "False" ) (bash)
-# echo "IS_HOTFIX=$hf" | tee -a "$GITHUB_OUTPUT"
-#
-# Latest tag can be obtained using the bash command:
-# git fetch --tags && git tag --sort=-v:refname | head -n 1
-#
-#
 
   build-selector:
     needs: get-versions
@@ -123,25 +108,34 @@ jobs:
     needs: [get-versions, build-selector]
     runs-on: ubuntu-latest
     steps:
-      - name: Create new release
-        id: create_release
-#        uses: keyfactor/action-create-release@upd-deprecated
-        uses: fiddlermikey/action-create-release@pre
-        env:
-          MANUAL_VERSION: ${{ env.MANUAL_VERSION }}
-        # if: env.IS_PRE_RELEASE == 'True' || env.IS_RELEASE == 'true'
-        if: github.event_name == 'pull_request'
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: set-semver-info
         with:
-          repo-token: ${{ secrets.SDK_SYNC_PAT }}
-          release_name: v${{ needs.get-versions.outputs.PR_BASE_TAG}}
-          body: |
-            [Changelog](/./CHANGELOG.md) 
-            [Readme](/./README.md) 
-            For the latest README.md updates visit the [Main Page](/../main) for this repository
-          draft: false
-          prerelease: ${{ needs.get-versions.outputs.IS_PRE_RELEASE == 'True' }}
-          prerelease_suffix: rc
-          tag_name: ${{ needs.get-versions.outputs.PR_BASE_TAG}}
-          auto_increment_type: ${{ (env.IS_PRE_RELEASE == 'True') && 'prerelease' || 'patch' }}
-          tag_schema: semantic
+          current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
+          level: patch
+      - name: Set semver info
+        id: show-next-semver
+        run: |
+          echo "next: ${{ steps.set-semver-info.outputs.new_version }}" 
+#      - name: Create new release
+#        id: create_release
+##        uses: keyfactor/action-create-release@upd-deprecated
+#        uses: fiddlermikey/action-create-release@pre
+#        env:
+#          MANUAL_VERSION: ${{ env.MANUAL_VERSION }}
+#        # if: env.IS_PRE_RELEASE == 'True' || env.IS_RELEASE == 'true'
+#        if: github.event_name == 'pull_request'
+#        with:
+#          repo-token: ${{ secrets.SDK_SYNC_PAT }}
+#          release_name: v${{ needs.get-versions.outputs.PR_BASE_TAG}}
+#          body: |
+#            [Changelog](/./CHANGELOG.md) 
+#            [Readme](/./README.md) 
+#            For the latest README.md updates visit the [Main Page](/../main) for this repository
+#          draft: false
+#          prerelease: ${{ needs.get-versions.outputs.IS_PRE_RELEASE == 'True' }}
+#          prerelease_suffix: rc
+#          tag_name: ${{ needs.get-versions.outputs.PR_BASE_TAG}}
+#          auto_increment_type: ${{ (env.IS_PRE_RELEASE == 'True') && 'prerelease' || 'patch' }}
+#          tag_schema: semantic
           
