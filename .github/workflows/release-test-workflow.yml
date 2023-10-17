@@ -113,6 +113,7 @@ jobs:
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
           level: prerelease
+          preID: rc
       - name: Set semver info
         id: show-next-semver
         run: |
