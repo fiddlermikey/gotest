@@ -108,7 +108,7 @@ jobs:
     needs: [get-versions, build-selector]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions-ecosystem/action-bump-semver@v1
+      - uses: fiddlermikey/action-bump-semver@main
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
