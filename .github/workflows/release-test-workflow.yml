@@ -67,7 +67,7 @@ jobs:
           echo "PR_BASE_REF=${{ env.PR_BASE_REF }}" | tee -a "$GITHUB_OUTPUT"
           echo "PR_STATE=${{ env.PR_STATE }}"
           echo "PR_MERGED=${{ env.PR_MERGED }}"
-          if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
+          if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "true" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
             echo "IS_FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
             echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
           fi
@@ -107,19 +107,21 @@ jobs:
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
 
-  release-type:
+  release-builds:
     needs: [get-versions, build-selector]
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - run: |
           echo "INC_LEVEL = ${{ needs.get-versions.outputs.INC_LEVEL}}"
-      - uses: fiddlermikey/action-bump-semver@main
+      - name: Set semver info
+        uses: fiddlermikey/action-bump-semver@main
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
           level: ${{ needs.get-versions.outputs.INC_LEVEL}}
           preID: rc
-      - name: Set semver info
+      - name: Show semver next
         id: show-next-semver
         run: |
           echo "next: ${{ steps.set-semver-info.outputs.new_version }}" | tee -a "$GITHUB_STEP_SUMMARY"
