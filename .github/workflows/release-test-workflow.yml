@@ -67,7 +67,7 @@ jobs:
           echo "PR_BASE_REF=${{ env.PR_BASE_REF }}" | tee -a "$GITHUB_OUTPUT"
           echo "PR_STATE=${{ env.PR_STATE }}"
           echo "PR_MERGED=${{ env.PR_MERGED }}"
-          if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "True" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
+          if [[ "${{ env.PR_STATE }}" == "closed" && "${{ env.PR_MERGED }}" == "true" && "${{ env.PR_COMMIT_SHA }}" == "${{ env.GITHUB_SHA }}" ]]; then
             echo "IS_FULL_RELEASE=True" | tee -a "$GITHUB_OUTPUT"
             echo "INC_LEVEL=patch" | tee -a "$GITHUB_OUTPUT"
           fi
