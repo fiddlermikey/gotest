@@ -107,19 +107,21 @@ jobs:
         run: |
           echo "Run a Full Release build on sha ${{ github.sha }} with delivery/release artifacts to final build num"
 
-  release-type:
+  release-builds:
     needs: [get-versions, build-selector]
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - run: |
           echo "INC_LEVEL = ${{ needs.get-versions.outputs.INC_LEVEL}}"
-      - uses: fiddlermikey/action-bump-semver@main
+      - name: Set semver info
+        uses: fiddlermikey/action-bump-semver@main
         id: set-semver-info
         with:
           current_version: ${{ needs.get-versions.outputs.LATEST_TAG}}
           level: ${{ needs.get-versions.outputs.INC_LEVEL}}
           preID: rc
-      - name: Set semver info
+      - name: Show semver next
         id: show-next-semver
         run: |
           echo "next: ${{ steps.set-semver-info.outputs.new_version }}" | tee -a "$GITHUB_STEP_SUMMARY"
