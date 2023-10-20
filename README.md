@@ -1,9 +1,5 @@
-# gotest
+# Replace github-release workflow
 
-### Build Workflow Triggers
-
-* Push
-** Any Branch
-
-* Pull Request
+* Create a release-1.0 branch and pr
+* Merge the pr
 
